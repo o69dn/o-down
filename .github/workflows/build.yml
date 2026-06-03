@@ -80,10 +80,10 @@ jobs:
       - name: Install Inno Setup
         shell: pwsh
         run: |
-          $zip = "$env:TEMP\innosetup.zip"
-          curl.exe -L -o $zip "https://jrsoftware.org/download.php/is.exe"
-          Start-Process -FilePath "$zip" -ArgumentList "/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /DIR=`"$env:ProgramFiles\Inno Setup 6`"" -Wait
-          echo "$env:ProgramFiles\Inno Setup 6" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          $installer = "$env:TEMP\innosetup.exe"
+          curl.exe -L -o $installer "https://jrsoftware.org/download.php/is.exe"
+          Start-Process -FilePath $installer -ArgumentList "/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /DIR=`"$env:ProgramFiles\Inno Setup 6`"" -Wait
+          "$env:ProgramFiles\Inno Setup 6" >> $env:GITHUB_PATH
 
       - name: Build
         shell: pwsh
@@ -94,8 +94,6 @@ jobs:
           $args = @("-Version", $version, "-Channel", $channel)
           if ($url) { $args += "-DownloadUrl"; $args += $url }
           .\build.ps1 @args
-        env:
-          ODOWN_SOURCE_DIR: ${{ github.workspace }}\dist\publish\o-down
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
