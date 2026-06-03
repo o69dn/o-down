@@ -91,9 +91,9 @@ jobs:
           $version = "${{ github.event.inputs.version || '0.1.0' }}"
           $channel = "${{ github.event.inputs.channel || 'stable' }}"
           $url = "${{ github.event.inputs.download_url || '' }}"
-          $args = @("-Version", $version, "-Channel", $channel)
-          if ($url) { $args += "-DownloadUrl"; $args += $url }
-          .\build.ps1 @args
+          $buildArgs = @("-Version", $version, "-Channel", $channel)
+          if ($url) { $buildArgs += "-DownloadUrl"; $buildArgs += $url }
+          .\build.ps1 @buildArgs
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
