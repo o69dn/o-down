@@ -26,7 +26,7 @@ env:
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: windows-2022
     steps:
       - uses: actions/checkout@v4
 
@@ -93,7 +93,7 @@ jobs:
           $url = "${{ github.event.inputs.download_url || '' }}"
           $buildArgs = @{ Version = $version; Channel = $channel }
           if ($url) { $buildArgs.DownloadUrl = $url }
-          .\build-workaround.ps1 @buildArgs
+          .\build.ps1 @buildArgs
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
