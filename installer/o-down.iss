@@ -40,7 +40,6 @@ UninstallDisplayIcon={app}\{#AppExe}
 ChangesEnvironment=no
 ChangesAssociations=no
 AllowNoIcons=yes
-SetupIconFile=..\extensions\chrome\icons\icon-48.png
 
 [Languages]
 Name: "en"; MessagesFile: "compiler:Default.isl"
