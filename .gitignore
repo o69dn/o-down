@@ -1,0 +1,40 @@
+# Build artifacts
+[Bb]in/
+[Oo]bj/
+*.user
+*.suo
+.vs/
+*.swp
+
+# Sidecar binaries (large, downloaded at build time)
+tools/aria2c/*/aria2c.exe
+tools/aria2c/*/lib/*
+tools/aria2c/*/AUTHORS
+tools/aria2c/*/COPYING
+tools/aria2c/*/README
+tools/aria2c/*/*.dll
+tools/yt-dlp/yt-dlp.exe
+tools/yt-dlp/yt-dlp_*_win.zip
+tools/ffmpeg/*/ffmpeg.exe
+tools/ffmpeg/*/ffprobe.exe
+tools/ffmpeg/*/ffplay.exe
+tools/ffmpeg/*/*.dll
+tools/ffmpeg/*/LICENSE
+tools/ffmpeg/*/README
+
+# Local app data
+*.db
+*.db-shm
+*.db-wal
+*.log
+*.session
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Browser extension icons (not in source)
+extensions/*/icons/*.png
+
+# Build output
+dist/

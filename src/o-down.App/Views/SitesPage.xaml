@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="o_down.App.Views.SitesPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid Padding="16" RowDefinitions="Auto,*">
+        <TextBlock Grid.Row="0" Text="Sites" Style="{StaticResource TitleTextBlockStyle}"/>
+        <TextBlock Grid.Row="1" Text="Per-site format presets and sign-in will live here. (M4 milestone)" Opacity="0.7"/>
+    </Grid>
+</Page>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="o_down.App.Views.SettingsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <ScrollViewer>
+        <StackPanel Padding="16" Spacing="8" MaxWidth="800" HorizontalAlignment="Left">
+            <TextBlock Text="Settings" Style="{StaticResource TitleTextBlockStyle}"/>
+            <TextBlock Text="aria2c executable"   Opacity="0.7"/>
+            <TextBox Text="{x:Bind ViewModel.Aria2Path, Mode=OneWay}" IsReadOnly="True"/>
+            <TextBlock Text="yt-dlp executable"   Opacity="0.7"/>
+            <TextBox Text="{x:Bind ViewModel.YtDlpPath, Mode=OneWay}" IsReadOnly="True"/>
+            <TextBlock Text="ffmpeg executable"   Opacity="0.7"/>
+            <TextBox Text="{x:Bind ViewModel.FfmpegPath, Mode=OneWay}" IsReadOnly="True"/>
+            <TextBlock Text="Data directory"      Opacity="0.7"/>
+            <TextBox Text="{x:Bind ViewModel.DataDirectory, Mode=OneWay}" IsReadOnly="True"/>
+            <ToggleSwitch Header="Monitor clipboard for links"
+                          IsOn="{x:Bind ViewModel.ClipboardMonitorEnabled, Mode=TwoWay}"/>
+        </StackPanel>
+    </ScrollViewer>
+</Page>

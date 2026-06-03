@@ -1,0 +1,35 @@
+{
+  "manifest_version": 3,
+  "name": "o-down",
+  "version": "0.1.0",
+  "description": "Send downloads to o-down download manager with one click.",
+  "icons": {
+    "48":  "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  },
+  "action": {
+    "default_title": "Download with o-down",
+    "default_icon": {
+      "48":  "icons/icon-48.png",
+      "128": "icons/icon-128.png"
+    }
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "permissions": [
+    "activeTab",
+    "downloads",
+    "contextMenus",
+    "nativeMessaging",
+    "scripting",
+    "storage"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": true
+  }
+}
