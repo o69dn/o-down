@@ -93,7 +93,7 @@ jobs:
           $url = "${{ github.event.inputs.download_url || '' }}"
           $buildArgs = @{ Version = $version; Channel = $channel }
           if ($url) { $buildArgs.DownloadUrl = $url }
-          .\build.ps1 @buildArgs
+          .\build-workaround.ps1 @buildArgs
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
