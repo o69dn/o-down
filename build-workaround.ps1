@@ -83,10 +83,9 @@ Write-Host "  Copied App output ($((Get-ChildItem $finalPublishDir | Measure-Obj
 # Copy sidecars
 Step "Bundling sidecar binaries" {
     $sidecars = @(
-        @{ Name = "aria2c.exe";  Source = "tools\aria2c\$arch\aria2c.exe" }
-        @{ Name = "yt-dlp.exe";  Source = "tools\yt-dlp\yt-dlp.exe" }
-        @{ Name = "ffmpeg.exe";  Source = "tools\ffmpeg\$arch\ffmpeg.exe" }
-        @{ Name = "ffprobe.exe"; Source = "tools\ffmpeg\$arch\ffprobe.exe" }
+        @{ Name = "aria2c.exe"; Source = "tools\aria2c\$arch\aria2c.exe" }
+        @{ Name = "yt-dlp.exe"; Source = "tools\yt-dlp\yt-dlp.exe" }
+        @{ Name = "ffmpeg.exe"; Source = "tools\ffmpeg\$arch\ffmpeg.exe" }
     )
     foreach ($s in $sidecars) {
         $src = Join-Path $repoRoot $s.Source

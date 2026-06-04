@@ -16,7 +16,6 @@ tools/aria2c/*/*.dll
 tools/yt-dlp/yt-dlp.exe
 tools/yt-dlp/yt-dlp_*_win.zip
 tools/ffmpeg/*/ffmpeg.exe
-tools/ffmpeg/*/ffprobe.exe
 tools/ffmpeg/*/ffplay.exe
 tools/ffmpeg/*/*.dll
 tools/ffmpeg/*/LICENSE

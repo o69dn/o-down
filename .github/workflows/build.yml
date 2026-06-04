@@ -46,8 +46,7 @@ jobs:
             tools\aria2c\x64\aria2c.exe
             tools\yt-dlp\yt-dlp.exe
             tools\ffmpeg\x64\ffmpeg.exe
-            tools\ffmpeg\x64\ffprobe.exe
-          key: sidecars-${{ runner.os }}-v2
+          key: sidecars-${{ runner.os }}-v3
 
       - name: Download aria2c
         if: steps.cache-sidecars.outputs.cache-hit != 'true'
@@ -72,10 +71,9 @@ jobs:
         run: |
           New-Item -ItemType Directory -Force -Path tools\ffmpeg\x64 | Out-Null
           $zip = "$env:TEMP\ffmpeg.zip"
-          curl.exe -L -C - -o $zip "https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win64-gpl.zip"
+          curl.exe -L -C - -o $zip "https://github.com/GyanD/codexffmpeg/releases/download/2025-01-15-git-4f3c9f2f03/ffmpeg-2025-01-15-git-4f3c9f2f03-essentials_build.zip"
           Expand-Archive -Path $zip -DestinationPath "$env:TEMP\ffmpeg" -Force
-          Copy-Item "$env:TEMP\ffmpeg\ffmpeg-master-latest-win64-gpl\bin\ffmpeg.exe" tools\ffmpeg\x64\ffmpeg.exe -Force
-          Copy-Item "$env:TEMP\ffmpeg\ffmpeg-master-latest-win64-gpl\bin\ffprobe.exe" tools\ffmpeg\x64\ffprobe.exe -Force
+          Copy-Item "$env:TEMP\ffmpeg\ffmpeg-*-essentials_build\bin\ffmpeg.exe" tools\ffmpeg\x64\ffmpeg.exe -Force
 
       - name: Install Inno Setup
         shell: pwsh

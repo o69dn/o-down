@@ -90,7 +90,7 @@ dotnet run --project src/o-down.App -c Release
 .\build.cmd -Version 1.2.0 -DownloadUrl https://updates.example.com/o-down-1.2.0.zip
 ```
 
-`build.ps1` publishes the App (`win-x64`, self-contained) and the native-messaging host, bundles `aria2c.exe` / `yt-dlp.exe` / `ffmpeg.exe` / `ffprobe.exe` from `tools/`, copies the native-messaging host into the App output, zips the result, and writes `dist\latest.json` with the SHA-256 + size of the zip (via `o-down.Update.UpdateManifestBuilder`).
+`build.ps1` publishes the App (`win-x64`, self-contained) and the native-messaging host (framework-dependent on the .NET 8 Desktop Runtime, see [Runtime Requirements](#runtime-requirements)), bundles `aria2c.exe` / `yt-dlp.exe` / `ffmpeg.exe` from `tools/`, copies the native-messaging host into the App output, zips the result, and writes `dist\latest.json` with the SHA-256 + size of the zip (via `o-down.Update.UpdateManifestBuilder`).
 
 Output:
 - `dist\o-down-<Version>.zip` — portable, drop-in install (extract anywhere)
@@ -142,12 +142,23 @@ Place the following binaries under `tools/` (or in the directory indicated) befo
 | `yt-dlp`   | `tools/yt-dlp/yt-dlp.exe`                 | —                         | Unlicense       |
 | `ffmpeg`   | `tools/ffmpeg/{x64|arm64}/ffmpeg.exe`     | `tools/ffmpeg/ffmpeg.exe` | LGPL/GPL (build) |
 
+Use the **essentials** build of ffmpeg (not "full shared") to keep the installer small — `ffprobe.exe` is **not** bundled (yt-dlp does its own probing; `MediaDownloadEngine` only invokes `ffmpeg.exe` for remux).
+
 Downloads:
 - **aria2**: https://github.com/aria2/aria2/releases (build: `aria2-*-win-64bit-build1.zip` for x64, `aria2-*-win-arm64-build1.zip` for arm64)
 - **yt-dlp**: https://github.com/yt-dlp/yt-dlp/releases (download `yt-dlp.exe`)
-- **ffmpeg**: https://www.gyan.dev/ffmpeg/builds/ (essentials, full shared) for x64; for arm64 use https://github.com/BtbN/FFmpeg-Builds
+- **ffmpeg (x64)**: https://www.gyan.dev/ffmpeg/builds/ — pick the **essentials** build
+- **ffmpeg (arm64)**: https://github.com/BtbN/FFmpeg-Builds — pick the **gpl-shared** (smallest arm64 with the codecs we need)
 
 The `SidecarManager` falls back to whatever it finds in `PATH` if the bundled binaries are missing.
+
+## Runtime Requirements
+
+- **Windows 10 1809+** or **Windows 11**
+- **.NET 8 Desktop Runtime** (only required for the browser-extension host `o-down.NativeMessaging.exe`; the main `o-down.App.exe` is self-contained and does **not** need it)
+  - Preinstalled on Windows 11 22H2+
+  - Download: https://dotnet.microsoft.com/download/dotnet/8.0
+  - The Inno Setup installer detects this at startup and offers to open the download page if it's missing
 
 ## Architecture
 
@@ -199,7 +210,7 @@ Source-available, closed-source. See [LICENSE.md](LICENSE.md) (TBD) for terms. B
 - **`SingleInstanceGuard`** (`src/o-down.Infrastructure/SingleInstanceGuard.cs`): named-mutex single-instance check + named-pipe focus-signal server. `TryAcquire()` returns true only for the first instance. The first instance calls `StartFocusServer(pipeName, onFocusRequested)` to listen for `SendFocusMessageAsync` calls. Subsequent instances send the focus message (with their command-line args) and exit, so launching the .exe again just brings the existing window to the front.
 - **App startup wiring** (`App.xaml.cs`): pre-DI single-instance check at the very start of `OnLaunched`; if a previous instance exists, sends the focus signal and exits. `UpdateService`, `UpdateCheckScheduler`, `IAppSettingsStore`, and `SingleInstanceGuard` are now properly resolved through DI (the previous `AddSingleton<UpdateService>()` was a no-op because the constructor needs `IUpdateFeed`/`appDir`/`Version`). After the orchestrator starts, the update scheduler is started and its `UpdateAvailable` event is logged.
 - **`UpdateManifestBuilder`** (`src/o-down.Update/UpdateManifestBuilder.cs`): pure helper that turns a zip into an `UpdateManifest` (computes SHA-256 + size, defaults channel/release-date) and writes `latest.json` atomically. Used by `build.ps1` to generate the feed manifest.
-- **Build/publish script** (`build.ps1` + `build.cmd`): one-shot release pipeline. Restores, publishes the App (`win-x64`, self-contained, x64), publishes the native-messaging host, bundles `aria2c` / `yt-dlp` / `ffmpeg` / `ffprobe` from `tools/`, copies the native-messaging host into the App output, zips everything, and writes `dist\latest.json` via `UpdateManifestBuilder`. ARM64 supported via `-Runtime win-arm64` (sidecars picked from `tools\aria2c\arm64\` and `tools\ffmpeg\arm64\`).
+- **Build/publish script** (`build.ps1` + `build.cmd`): one-shot release pipeline. Restores, publishes the App (`win-x64`, self-contained, x64), publishes the native-messaging host (framework-dependent on the .NET 8 Desktop Runtime), bundles `aria2c` / `yt-dlp` / `ffmpeg` from `tools/`, copies the native-messaging host into the App output, zips everything, and writes `dist\latest.json` via `UpdateManifestBuilder`. ARM64 supported via `-Runtime win-arm64` (sidecars picked from `tools\aria2c\arm64\` and `tools\ffmpeg\arm64\`).
 
 **What the M6 tests cover** (17 UpdateService + 9 AppSettings + 9 UpdateCheckScheduler + 9 UpdateManifestBuilder + 7 SingleInstanceGuard = 51 new tests):
 - `UpdateServiceTests` — version compare (newer/equal/lesser, invalid/empty/null), SHA-256 verify (match/mismatch/dashed/empty), `StageAsync` (extract + overwrite), `ApplyAsync` (replace contents, delete backup+staging, throw on missing exe), `CheckAsync` (newer/equal/missing manifest).

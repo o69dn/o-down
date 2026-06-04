@@ -93,16 +93,15 @@ Step "Publishing o-down.NativeMessaging ($Runtime, $Configuration)" {
     & $dotnet publish $nativeMessagingProject `
         --configuration $Configuration `
         --runtime $Runtime `
-        --self-contained true `
+        --self-contained false `
         --output $nativePublishDir
 }
 
 Step "Bundling sidecar binaries" {
     $sidecars = @(
-        @{ Name = "aria2c.exe";  Source = "tools\aria2c\$arch\aria2c.exe" }
-        @{ Name = "yt-dlp.exe";  Source = "tools\yt-dlp\yt-dlp.exe" }
-        @{ Name = "ffmpeg.exe";  Source = "tools\ffmpeg\$arch\ffmpeg.exe" }
-        @{ Name = "ffprobe.exe"; Source = "tools\ffmpeg\$arch\ffprobe.exe" }
+        @{ Name = "aria2c.exe"; Source = "tools\aria2c\$arch\aria2c.exe" }
+        @{ Name = "yt-dlp.exe"; Source = "tools\yt-dlp\yt-dlp.exe" }
+        @{ Name = "ffmpeg.exe"; Source = "tools\ffmpeg\$arch\ffmpeg.exe" }
     )
     foreach ($s in $sidecars) {
         $src = Join-Path $repoRoot $s.Source

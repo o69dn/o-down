@@ -89,6 +89,52 @@ const
   HostName = 'o_down_native_messaging';
   ChromeExtId = 'o-down-chrome-stub';
   FirefoxExtId = 'o-down-firefox-stub';
+  DotNet8RuntimeUrl = 'https://dotnet.microsoft.com/download/dotnet/8.0';
+
+function IsDotNet8DesktopRuntimeInstalled: Boolean;
+var
+  FindRec: TFindRec;
+  Path: string;
+begin
+  Result := False;
+  Path := ExpandConstant('{pf32}\dotnet\shared\Microsoft.WindowsDesktop.App');
+  if DirExists(Path) and FindFirst(Path + '\*', FindRec) then
+  begin
+    try
+      while True do
+      begin
+        if ((FindRec.Attributes and FILE_ATTRIBUTE_DIRECTORY) <> 0) and
+           (Length(FindRec.Name) >= 2) and
+           (FindRec.Name[1] = '8') and (FindRec.Name[2] = '.') then
+        begin
+          Result := True;
+          Break;
+        end;
+        if not FindNext(FindRec) then Break;
+      end;
+    finally
+      FindClose(FindRec);
+    end;
+  end;
+end;
+
+function InitializeSetup: Boolean;
+var
+  ResultCode: Integer;
+begin
+  Result := True;
+  if not IsDotNet8DesktopRuntimeInstalled then
+  begin
+    if MsgBox(
+      'o-down''s browser extension host needs the .NET 8 Desktop Runtime, which was not found on this system.' + #13#10#13#10 +
+      'The main app will still work, but the browser extension will not respond until the runtime is installed.' + #13#10#13#10 +
+      'Open the .NET 8 download page now?',
+      mbConfirmation, MB_YESNO) = idYes then
+    begin
+      ShellExecAsOriginalUser('open', DotNet8RuntimeUrl, '', '', SW_SHOWNORMAL, ewNoWait, ResultCode);
+    end;
+  end;
+end;
 
 procedure WriteNativeMessagingManifests;
 var
