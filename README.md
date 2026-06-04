@@ -44,6 +44,32 @@ A high-performance download manager for Windows, built on **WinUI 3** (Windows A
 
 ---
 
+## System Requirements
+
+### Required
+- **Windows 10 1809+** or **Windows 11** (x64; arm64 build requires arm64 Windows)
+- **~50-80 MB** of disk space for the install
+- **Internet connection** for downloads
+
+### Optional
+- **.NET 8 Desktop Runtime** — only needed if you want the browser extension (one-click "send to o-down" from web pages). Preinstalled on Windows 11 22H2 and later. If you don't have it, the Inno Setup installer detects this on launch and offers to open the download page; the main app still works without it.
+  - Download: https://dotnet.microsoft.com/download/dotnet/8.0
+- **Chrome / Edge / Brave / Opera** or **Firefox** — for the browser extension
+- **~100 MB free RAM** while running
+
+### Bundled inside the installer (you do nothing)
+- `aria2c.exe` — multi-connection HTTP/HTTPS/FTP
+- `yt-dlp.exe` — 1000+ media sites
+- `ffmpeg.exe` (essentials build) — video/audio remux
+- `o-down.App.exe` — main WinUI 3 app (self-contained, no runtime needed)
+- `o-down.NativeMessaging.exe` — small browser-extension host
+- Browser extension source folders (for manual load in developer mode)
+
+### Runtime data
+Settings, resume state, logs, and the SQLite database live under `%LOCALAPPDATA%\o-down\`. The app and download folder need normal user write access.
+
+---
+
 ## Project Layout
 
 ```
@@ -151,14 +177,6 @@ Downloads:
 - **ffmpeg (arm64)**: https://github.com/BtbN/FFmpeg-Builds — pick the **gpl-shared** (smallest arm64 with the codecs we need)
 
 The `SidecarManager` falls back to whatever it finds in `PATH` if the bundled binaries are missing.
-
-## Runtime Requirements
-
-- **Windows 10 1809+** or **Windows 11**
-- **.NET 8 Desktop Runtime** (only required for the browser-extension host `o-down.NativeMessaging.exe`; the main `o-down.App.exe` is self-contained and does **not** need it)
-  - Preinstalled on Windows 11 22H2+
-  - Download: https://dotnet.microsoft.com/download/dotnet/8.0
-  - The Inno Setup installer detects this at startup and offers to open the download page if it's missing
 
 ## Architecture
 
