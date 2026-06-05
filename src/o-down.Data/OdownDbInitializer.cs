@@ -11,6 +11,11 @@ public sealed class OdownDbInitializer
     public async Task InitializeAsync(CancellationToken ct = default)
     {
         await _db.Database.EnsureCreatedAsync(ct).ConfigureAwait(false);
+        if (!await _db.BandwidthProfiles.AnyAsync(ct).ConfigureAwait(false))
+        {
+            _db.BandwidthProfiles.AddRange(BuiltInBandwidthProfiles.All);
+            await _db.SaveChangesAsync(ct).ConfigureAwait(false);
+        }
         if (!await _db.CategoryRules.AnyAsync(ct).ConfigureAwait(false))
         {
             _db.CategoryRules.AddRange(

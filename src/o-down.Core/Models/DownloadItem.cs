@@ -30,6 +30,7 @@ public sealed class DownloadItem
     public TimeSpan? Timeout { get; set; }
     public TimeSpan? ConnectTimeout { get; set; }
     public long? MaxDownloadLimit { get; set; }
+    public long? MaxUploadLimit { get; set; }
     public long? LowestSpeedLimit { get; set; }
     public string? Proxy { get; set; }
     public string? ProxyUser { get; set; }

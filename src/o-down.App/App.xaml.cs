@@ -114,6 +114,7 @@ public partial class App : Application
                 .AddSingleton<IAppSettingsStore>(sp => new JsonAppSettingsStore(
                     Path.Combine(sidecars.DataDirectory, "settings.json")))
                 .AddSingleton<INavigationService, NavigationService>()
+                .AddSingleton<IBandwidthProfileService, BandwidthProfileService>()
                 .AddSingleton<TrayIconService>()
                 .AddTransient<DownloadsViewModel>()
                 .AddTransient<TorrentsViewModel>()

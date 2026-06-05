@@ -30,6 +30,7 @@ public interface IDownloadEngine
     Task ForceRemoveAsync(string engineHandle, CancellationToken ct = default);
     Task PurgeCompletedResultsAsync(CancellationToken ct = default);
     Task SetBandwidthLimitAsync(long? bytesPerSecond, CancellationToken ct = default);
+    Task SetDownloadLimitsAsync(string engineHandle, long? maxDownloadBytesPerSecond, long? maxUploadBytesPerSecond, CancellationToken ct = default);
     Task<IReadOnlyList<DownloadProgress>> QueryAllAsync(CancellationToken ct = default);
     Task<DownloadProgress?> QueryAsync(string engineHandle, CancellationToken ct = default);
     event EventHandler<DownloadProgress>? ProgressChanged;

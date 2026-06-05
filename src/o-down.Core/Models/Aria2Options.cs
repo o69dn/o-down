@@ -18,6 +18,7 @@ public sealed class Aria2Options
     public TimeSpan? Timeout { get; set; }
     public TimeSpan? ConnectTimeout { get; set; }
     public long? MaxDownloadLimit { get; set; }
+    public long? MaxUploadLimit { get; set; }
     public long? LowestSpeedLimit { get; set; }
     public string? AllProxy { get; set; }
     public string? AllProxyUser { get; set; }
@@ -44,6 +45,7 @@ public sealed class Aria2Options
             Timeout = item.Timeout,
             ConnectTimeout = item.ConnectTimeout,
             MaxDownloadLimit = item.MaxDownloadLimit,
+            MaxUploadLimit = item.MaxUploadLimit,
             LowestSpeedLimit = item.LowestSpeedLimit,
             AllProxy = item.Proxy,
             AllProxyUser = item.ProxyUser,
@@ -60,6 +62,7 @@ public sealed class Aria2Options
     {
         var d = new Dictionary<string, object?>();
         void Set(string k, object? v) { if (v is not null) d[k] = v; }
+        void SetBytes(string k, long? v) { if (v is not null) d[k] = FormatBytes(v.Value); }
 
         Set("dir", Dir);
         Set("out", Out);
@@ -72,8 +75,9 @@ public sealed class Aria2Options
         Set("retry-wait", RetryWait);
         Set("timeout", Timeout);
         Set("connect-timeout", ConnectTimeout);
-        Set("max-download-limit", MaxDownloadLimit);
-        Set("lowest-speed-limit", LowestSpeedLimit);
+        SetBytes("max-download-limit", MaxDownloadLimit);
+        SetBytes("max-upload-limit", MaxUploadLimit);
+        SetBytes("lowest-speed-limit", LowestSpeedLimit);
         Set("all-proxy", AllProxy);
         Set("all-proxy-user", AllProxyUser);
         Set("all-proxy-passwd", AllProxyPasswd);

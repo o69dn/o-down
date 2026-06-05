@@ -11,6 +11,7 @@ public sealed class OdownDbContext : DbContext
     public DbSet<Mirror> Mirrors => Set<Mirror>();
     public DbSet<CategoryRule> CategoryRules => Set<CategoryRule>();
     public DbSet<Schedule> Schedules => Set<Schedule>();
+    public DbSet<BandwidthProfile> BandwidthProfiles => Set<BandwidthProfile>();
 
     public OdownDbContext(DbContextOptions<OdownDbContext> options) : base(options) { }
 
@@ -78,6 +79,14 @@ public sealed class OdownDbContext : DbContext
             b.HasKey(x => x.Id);
             b.Property(x => x.Name).HasMaxLength(64).IsRequired();
             b.Property(x => x.CronExpression).HasMaxLength(64).IsRequired();
+        });
+
+        modelBuilder.Entity<BandwidthProfile>(b =>
+        {
+            b.ToTable("bandwidth_profiles");
+            b.HasKey(x => x.Id);
+            b.Property(x => x.Name).HasMaxLength(64).IsRequired();
+            b.HasIndex(x => x.SortOrder);
         });
 
         base.OnModelCreating(modelBuilder);

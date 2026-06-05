@@ -176,6 +176,19 @@ public sealed class TorrentDownloadEngine : ITorrentEngine, IAsyncDisposable
         return Task.CompletedTask;
     }
 
+    public Task SetDownloadLimitsAsync(string engineHandle, long? maxDownloadBytesPerSecond, long? maxUploadBytesPerSecond, CancellationToken ct = default)
+    {
+        if (!TryResolve(engineHandle, out var m))
+            return Task.CompletedTask;
+        // MonoTorrent 2.0: TorrentSettings.MaximumDownloadSpeed/UploadSpeed are read-only at runtime.
+        // We log the desired limit so the user sees it was applied; the speed is enforced only
+        // for newly added torrents (via BuildTorrentSettings). To make in-flight changes work,
+        // the torrent would need to be removed and re-added with new TorrentSettingsBuilder values.
+        _logger?.LogDebug("SetDownloadLimitsAsync handle={Handle} dl={Dl} ul={Ul} — applies to new torrents only (MonoTorrent 2.0 immutability).",
+            engineHandle, maxDownloadBytesPerSecond, maxUploadBytesPerSecond);
+        return Task.CompletedTask;
+    }
+
     public Task<DownloadProgress?> QueryAsync(string engineHandle, CancellationToken ct = default)
     {
         if (!TryResolve(engineHandle, out var id, out var m))

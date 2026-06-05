@@ -142,15 +142,33 @@ public sealed class Aria2DownloadEngine : IDownloadEngine, IAsyncDisposable
         if (bytesPerSecond is null)
         {
             await _rpc.CallAsync("aria2.changeGlobalOption",
-                new Dictionary<string, object?> { ["max-overall-download-limit"] = "0" },
+                new Dictionary<string, object?>
+                {
+                    ["max-overall-download-limit"] = "0",
+                    ["max-overall-upload-limit"] = "0"
+                },
                 ct).ConfigureAwait(false);
         }
         else
         {
             await _rpc.CallAsync("aria2.changeGlobalOption",
-                new Dictionary<string, object?> { ["max-overall-download-limit"] = bytesPerSecond.Value.ToString() },
+                new Dictionary<string, object?>
+                {
+                    ["max-overall-download-limit"] = bytesPerSecond.Value.ToString(),
+                    ["max-overall-upload-limit"] = "0"
+                },
                 ct).ConfigureAwait(false);
         }
+    }
+
+    public async Task SetDownloadLimitsAsync(string engineHandle, long? maxDownloadBytesPerSecond, long? maxUploadBytesPerSecond, CancellationToken ct = default)
+    {
+        var options = new Dictionary<string, object?>
+        {
+            ["max-download-limit"] = maxDownloadBytesPerSecond is null ? "0" : Aria2Options.FormatBytes(maxDownloadBytesPerSecond.Value),
+            ["max-upload-limit"] = maxUploadBytesPerSecond is null ? "0" : Aria2Options.FormatBytes(maxUploadBytesPerSecond.Value)
+        };
+        await _rpc.ChangeOptionAsync(engineHandle, options, ct).ConfigureAwait(false);
     }
 
     public async Task<IReadOnlyDictionary<string, object?>?> GetOptionAsync(string engineHandle, CancellationToken ct = default)

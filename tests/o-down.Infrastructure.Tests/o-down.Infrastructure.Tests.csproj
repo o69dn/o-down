@@ -23,7 +23,13 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\o-down.Core\o-down.Core.csproj" />
+    <ProjectReference Include="..\..\src\o-down.Data\o-down.Data.csproj" />
     <ProjectReference Include="..\..\src\o-down.Infrastructure\o-down.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="8.0.10" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.10" />
   </ItemGroup>
 
 </Project>

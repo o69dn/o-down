@@ -248,6 +248,12 @@ public sealed class MediaDownloadEngine : IDownloadEngine, IAsyncDisposable
         return Task.CompletedTask;
     }
 
+    public Task SetDownloadLimitsAsync(string engineHandle, long? maxDownloadBytesPerSecond, long? maxUploadBytesPerSecond, CancellationToken ct = default)
+    {
+        _logger?.LogDebug("media engine per-download limit not applied to running downloads (yt-dlp limit-rate is launch-time only)");
+        return Task.CompletedTask;
+    }
+
     public Task<IReadOnlyList<DownloadProgress>> QueryAllAsync(CancellationToken ct = default)
     {
         List<DownloadProgress> snapshot;

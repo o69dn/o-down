@@ -235,8 +235,8 @@ public class Aria2OptionsTests
         Assert.Equal(4, (int)(rpc["max-connection-per-server"]!));
         Assert.Equal(2L * 1024 * 1024, (long)(rpc["min-split-size"]!));
         Assert.Equal(3, (int)(rpc["max-tries"]!));
-        Assert.Equal(1024L * 1024, (long)(rpc["max-download-limit"]!));
-        Assert.Equal(1024L, (long)(rpc["lowest-speed-limit"]!));
+        Assert.Equal("1M", rpc["max-download-limit"]);
+        Assert.Equal("1K", rpc["lowest-speed-limit"]);
         Assert.Equal("http://127.0.0.1:8888", rpc["all-proxy"]);
         Assert.Equal("ua/1", rpc["user-agent"]);
         Assert.Equal("sha-256=deadbeef", rpc["checksum"]);
@@ -278,5 +278,95 @@ public class Aria2OptionsTests
         var delta = b.ToRpcOptionsDelta(a);
         Assert.Single(delta);
         Assert.Equal(16, delta["split"]);
+    }
+
+    [Fact]
+    public void ToRpcOptions_FormatsBytes_AsAria2SpeedString()
+    {
+        var o = new Aria2Options
+        {
+            MaxDownloadLimit = 5L * 1024 * 1024,
+            MaxUploadLimit = 512L * 1024,
+            LowestSpeedLimit = 1024
+        };
+        var rpc = o.ToRpcOptions();
+        Assert.Equal("5M", rpc["max-download-limit"]);
+        Assert.Equal("512K", rpc["max-upload-limit"]);
+        Assert.Equal("1K", rpc["lowest-speed-limit"]);
+    }
+
+    [Fact]
+    public void ToRpcOptions_OmitsNullLimits()
+    {
+        var rpc = new Aria2Options().ToRpcOptions();
+        Assert.False(rpc.ContainsKey("max-download-limit"));
+        Assert.False(rpc.ContainsKey("max-upload-limit"));
+        Assert.False(rpc.ContainsKey("lowest-speed-limit"));
+    }
+
+    [Fact]
+    public void FromDownloadItem_CopiesMaxUploadLimit()
+    {
+        var item = new DownloadItem
+        {
+            SourceUrl = "u",
+            DestinationDirectory = "d",
+            MaxDownloadLimit = 1024 * 1024,
+            MaxUploadLimit = 256 * 1024
+        };
+        var o = Aria2Options.FromDownloadItem(item);
+        Assert.Equal(1024 * 1024, o.MaxDownloadLimit);
+        Assert.Equal(256 * 1024, o.MaxUploadLimit);
+    }
+
+    [Theory]
+    [InlineData(0, "0")]
+    [InlineData(1024, "1K")]
+    [InlineData(2 * 1024, "2K")]
+    [InlineData(1024L * 1024, "1M")]
+    [InlineData(10L * 1024 * 1024, "10M")]
+    [InlineData(1536, "1536")]
+    [InlineData(999, "999")]
+    public void FormatBytes_HandlesCommonSizes(long input, string expected)
+    {
+        Assert.Equal(expected, Aria2Options.FormatBytes(input));
+    }
+}
+
+public class ChangeOptionRpcTests
+{
+    [Fact]
+    public async Task ChangeOptionAsync_SendsAria2ChangeOption_WithFormattedLimits()
+    {
+        string? body = null;
+        var mock = new MockHttpMessageHandler();
+        mock.When("*").Respond(req =>
+        {
+            body = req.Content!.ReadAsStringAsync().GetAwaiter().GetResult();
+            return new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent("""{"jsonrpc":"2.0","id":1,"result":"ok"}""")
+            };
+        });
+        await using var client = new Aria2JsonRpcClient(new Uri("http://127.0.0.1:6800/jsonrpc"));
+        typeof(Aria2JsonRpcClient)
+            .GetField("_http", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!
+            .SetValue(client, new HttpClient(mock) { BaseAddress = new Uri("http://127.0.0.1:6800/jsonrpc") });
+
+        var limits = new Dictionary<string, object?>
+        {
+            ["max-download-limit"] = Aria2Options.FormatBytes(2L * 1024 * 1024),
+            ["max-upload-limit"] = Aria2Options.FormatBytes(512L * 1024)
+        };
+        await client.ChangeOptionAsync("gid-123", limits);
+
+        Assert.NotNull(body);
+        var parsed = JsonNode.Parse(body!)!;
+        Assert.Equal("aria2.changeOption", parsed["method"]!.GetValue<string>());
+        var prm = parsed["params"]!.AsArray();
+        Assert.Equal("gid-123", prm[1]!.GetValue<string>());
+        var opts = prm[2]!.AsObject();
+        Assert.Equal("2M", opts["max-download-limit"]!.GetValue<string>());
+        Assert.Equal("512K", opts["max-upload-limit"]!.GetValue<string>());
     }
 }
