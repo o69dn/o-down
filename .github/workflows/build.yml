@@ -91,7 +91,18 @@ jobs:
           $url = "${{ github.event.inputs.download_url || '' }}"
           $buildArgs = @{ Version = $version; Channel = $channel }
           if ($url) { $buildArgs.DownloadUrl = $url }
-          .\build.ps1 @buildArgs
+          $useWorkaround = $env:ODOWN_USE_XAML_WORKAROUND -eq '1'
+          if ($useWorkaround) {
+            Write-Host "::notice::Using build-workaround.ps1 (XAML stubs, no GUI on Server runner)"
+            .\build-workaround.ps1 @buildArgs
+          } else {
+            try {
+              .\build.ps1 @buildArgs
+            } catch {
+              Write-Host "::warning::build.ps1 failed (likely XAML compiler on Server); falling back to build-workaround.ps1"
+              .\build-workaround.ps1 @buildArgs
+            }
+          }
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
